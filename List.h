@@ -16,6 +16,16 @@ template <typename T>
 class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
+  List(){
+    size = 0;
+  }
+
+  List(const List& other) : size(other.size()), first(other.first), last(other.last);
+
+  ~List(){
+    delete first;
+    delete last;
+  }
 
   //EFFECTS:  returns true if the list is empty
   bool empty() const;
@@ -65,6 +75,15 @@ private:
     Node *prev;
     T datum;
   };
+      
+      
+
+
+  void Node_init(Node * node, Node * next_in, Node *prev_in, T datum_in){
+    node->next = next_in;
+    node->prev = prev_in;
+    node->datum = datum_in;
+  }
 
   //REQUIRES: list is empty
   //EFFECTS:  copies all nodes from other to this
@@ -72,7 +91,7 @@ private:
 
   Node *first;   // points to first Node in list, or nullptr if list is empty
   Node *last;    // points to last Node in list, or nullptr if list is empty
-
+  int size; //size of list
 public:
   ////////////////////////////////////////
   class Iterator {
@@ -133,5 +152,82 @@ public:
 // may add the Big Three if needed.  Do add the public member functions for
 // Iterator.
 
+template<typename T>
+List<T>::List(){
+
+}
+
+template<typename T>
+bool List<T>::empty() const {
+  if (first == nullptr){
+    return true;
+  }
+  return false;
+}
+
+
+//EFFECTS: returns the number of elements in this List
+//HINT:    Traversing a list is really slow.  Instead, keep track of the size
+//         with a private member variable.  That's how std::list does it.
+
+template<typename T>
+T & List<T>::front(){   
+  return first;
+}
+
+template<typename T>
+T & List<T>::back(){
+  return last;
+};
+
+template<typename T>
+void List<T>::push_front(const T &datum){
+  //dynamically create a new node
+  Node *newNode = new Node;
+  //initialize the new node, its next node is the first node in the linked list
+  Node_init(newNode, first, nullptr, *datum);
+  //the first node in the linked list now has this new node as its previous node
+  first->prev = newNode;
+  //so now the first in the linked list is the new node we created 
+  first = newNode;
+  size += 1;
+}
+
+template<typename T>
+void List<T>::push_back(const T &datum){
+  Node *newNode = new Node;
+  Node_init(newNode, nullptr, last, *datum);
+  last->next = newNode;
+  last = newNode;
+  size += 1;
+}
+
+
+template<typename T>
+void List<T>::pop_front(){
+  //temp points to second node in list
+  Node * temp = first->next;
+  //second node in list no longer has prev node
+  (first->next)->prev = nullptr;
+  //first node in list no longer has next node
+  first->next = nullptr;
+  //new first node was original second
+  first = temp;
+}
+
+template<typename T>
+void List<T>::pop_back(){
+  Node * temp = last->prev;
+  (last->prev)->next = nullptr;
+  last->prev = nullptr;
+  last = temp;
+}
+
+template<typename T>
+void List<T>::clear(){
+  while (!empty()){
+    pop_back();
+  }
+}
 
 #endif // Do not remove this. Write all your code above this line.
