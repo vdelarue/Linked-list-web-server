@@ -20,12 +20,60 @@ public:
     size = 0;
   }
 
-  List(const List& other) : size(other.size()), first(other.first), last(other.last);
+  List(const List& other) : size(other.size()), first(other.first), last(other.first){
+    for (int i = 1; i < other.size() - 1; i++){
+      if (i == 1){
+        Node * temp = first.next;
+        push_back(temp->datum);
+      }
+      else{
+        temp = temp.next;
+        push_back(temp->datum);
+        //temp points to last node in list
+      }
+
+    }
+    //temp points to null 
+    temp = nullptr;
+    delete temp;
+  };
 
   ~List(){
-    delete first;
-    delete last;
+    clear();
   }
+
+
+  List & operator=(const List &other) {
+    if (this == &other){
+      return *this;
+    }
+    //pop off all nodes (deletes them)
+    clear();
+
+    //nodes are dynamically allocated but everything else isn't
+    //here we handle static member variables
+    first = other.first;
+    last = other.first;
+    size = other.size;
+
+    //now we copy over dynamic member variables
+    for (int i = 1; i < other.size() - 1; i++){
+      if (i == 1){
+        Node * temp = first.next;
+        push_back(temp->datum);
+      }
+      else{
+        temp = temp.next;
+        push_back(temp->datum);
+        //temp points to last node in list
+      }
+
+    }
+    //temp points to null 
+    temp = nullptr;
+    delete temp;
+  }
+
 
   //EFFECTS:  returns true if the list is empty
   bool empty() const;
@@ -172,11 +220,13 @@ bool List<T>::empty() const {
 
 template<typename T>
 T & List<T>::front(){   
+  assert(empty() == false);
   return first;
 }
 
 template<typename T>
 T & List<T>::back(){
+  assert(empty() == false);
   return last;
 };
 
@@ -185,7 +235,9 @@ void List<T>::push_front(const T &datum){
   //dynamically create a new node
   Node *newNode = new Node;
   //initialize the new node, its next node is the first node in the linked list
-  Node_init(newNode, first, nullptr, *datum);
+  newNode->datum = datum;
+  newNode->prev = nullptr;
+  newNode->next = first;
   //the first node in the linked list now has this new node as its previous node
   first->prev = newNode;
   //so now the first in the linked list is the new node we created 
@@ -196,37 +248,43 @@ void List<T>::push_front(const T &datum){
 template<typename T>
 void List<T>::push_back(const T &datum){
   Node *newNode = new Node;
-  Node_init(newNode, nullptr, last, *datum);
-  last->next = newNode;
-  last = newNode;
+  newNode->datum = datum;
+  newNode->next = nullptr;
+  if (empty()){
+    first = last = newNode
+  }
+  else{
+    newNode->prev = last;
+    last = last->next = newNode;
+  }
+  
   size += 1;
 }
 
 
 template<typename T>
 void List<T>::pop_front(){
+  assert(empty() == false);
   //temp points to second node in list
-  Node * temp = first->next;
-  //second node in list no longer has prev node
-  (first->next)->prev = nullptr;
-  //first node in list no longer has next node
-  first->next = nullptr;
-  //new first node was original second
-  first = temp;
+  Node * temp = first;
+  first = first->next;
+  first->prev = nullptr;
+  delete temp;
 }
 
 template<typename T>
 void List<T>::pop_back(){
-  Node * temp = last->prev;
+  assert(empty() == false);
+  Node * temp = last;
   (last->prev)->next = nullptr;
-  last->prev = nullptr;
-  last = temp;
+  last = last->prev;
+  delete temp;
 }
 
 template<typename T>
 void List<T>::clear(){
   while (!empty()){
-    pop_back();
+    pop_front();
   }
 }
 
