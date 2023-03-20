@@ -17,21 +17,16 @@ class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
   List(){
-    size = 0;
+    list_size = 0;
   }
 
-  List(const List& other) : size(other.size()), first(other.first), last(other.first){
-    for (int i = 1; i < other.size() - 1; i++){
-      if (i == 1){
-        Node * temp = first.next;
-        push_back(temp->datum);
-      }
-      else{
+  List(const List& other) : list_size(other.size()), first(other.first), last(other.first){
+    Node * temp = first.next;
+    push_back(temp->datum);
+    for (int i = 2; i < other.size() - 1; i++){
         temp = temp.next;
         push_back(temp->datum);
         //temp points to last node in list
-      }
-
     }
     //temp points to null 
     temp = nullptr;
@@ -54,19 +49,15 @@ public:
     //here we handle static member variables
     first = other.first;
     last = other.first;
-    size = other.size;
+    list_size = other.size;
 
+    Node * temp = first.next;
+    push_back(temp->datum);
     //now we copy over dynamic member variables
-    for (int i = 1; i < other.size() - 1; i++){
-      if (i == 1){
-        Node * temp = first.next;
-        push_back(temp->datum);
-      }
-      else{
-        temp = temp.next;
-        push_back(temp->datum);
-        //temp points to last node in list
-      }
+    for (int i = 2; i < other.size() - 1; i++){
+      temp = temp.next;
+      push_back(temp->datum);
+      //temp points to last node in list
 
     }
     //temp points to null 
@@ -139,7 +130,7 @@ private:
 
   Node *first;   // points to first Node in list, or nullptr if list is empty
   Node *last;    // points to last Node in list, or nullptr if list is empty
-  int size; //size of list
+  int list_size; //size of list
 public:
   ////////////////////////////////////////
   class Iterator {
@@ -200,10 +191,6 @@ public:
 // may add the Big Three if needed.  Do add the public member functions for
 // Iterator.
 
-template<typename T>
-List<T>::List(){
-
-}
 
 template<typename T>
 bool List<T>::empty() const {
@@ -221,13 +208,13 @@ bool List<T>::empty() const {
 template<typename T>
 T & List<T>::front(){   
   assert(empty() == false);
-  return first;
+  return first->datum;
 }
 
 template<typename T>
 T & List<T>::back(){
   assert(empty() == false);
-  return last;
+  return last->datum;
 };
 
 template<typename T>
@@ -242,7 +229,7 @@ void List<T>::push_front(const T &datum){
   first->prev = newNode;
   //so now the first in the linked list is the new node we created 
   first = newNode;
-  size += 1;
+  list_size += 1;
 }
 
 template<typename T>
@@ -251,14 +238,14 @@ void List<T>::push_back(const T &datum){
   newNode->datum = datum;
   newNode->next = nullptr;
   if (empty()){
-    first = last = newNode
+    first = last = newNode;
   }
   else{
     newNode->prev = last;
     last = last->next = newNode;
   }
   
-  size += 1;
+  list_size += 1;
 }
 
 
@@ -270,6 +257,7 @@ void List<T>::pop_front(){
   first = first->next;
   first->prev = nullptr;
   delete temp;
+  list_size -= 1; 
 }
 
 template<typename T>
@@ -279,6 +267,7 @@ void List<T>::pop_back(){
   (last->prev)->next = nullptr;
   last = last->prev;
   delete temp;
+  list_size -= 1;
 }
 
 template<typename T>
@@ -287,5 +276,10 @@ void List<T>::clear(){
     pop_front();
   }
 }
+
+template<typename T>
+int List<T>::size() const{
+  return list_size;
+ }
 
 #endif // Do not remove this. Write all your code above this line.

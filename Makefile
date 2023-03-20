@@ -6,6 +6,7 @@ CXX ?= g++
 
 # Compiler flags
 CXXFLAGS ?= --std=c++11 -Wall -Werror -pedantic -g -Wno-sign-compare -Wno-comment
+CXXFLAGS += -fsanitize=address
 
 # Run a regression test
 test: test-api List_compile_check.exe List_public_test.exe List_tests.exe
