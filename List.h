@@ -12,7 +12,7 @@
 #include <cstddef> //NULL
 
 
-template <typename T>
+template <typename T> 
 class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
