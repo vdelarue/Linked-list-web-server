@@ -16,55 +16,21 @@ template <typename T>
 class List {
   //OVERVIEW: a doubly-linked, double-ended list with Iterator interface
 public:
-  List(){
-    list_size = 0;
-  }
+  List();
 
-  List(const List& other) : list_size(other.size()), first(other.first), last(other.first){
-    Node * temp = first.next;
-    push_back(temp->datum);
-    for (int i = 2; i < other.size() - 1; i++){
-        temp = temp.next;
-        push_back(temp->datum);
-        //temp points to last node in list
-    }
-    //temp points to null 
-    temp = nullptr;
-    delete temp;
-  };
+  /*BIG THREE*/
 
-  ~List(){
+  // Copy constructor
+  List(const List& other);
+
+  // Assignment operator overloader
+  List &operator=(const List &other);
+
+//NOTE: figure out how to call this with type T
+  // Destructor
+  ~List() {
     clear();
   }
-
-
-  List & operator=(const List &other) {
-    if (this == &other){
-      return *this;
-    }
-    //pop off all nodes (deletes them)
-    clear();
-
-    //nodes are dynamically allocated but everything else isn't
-    //here we handle static member variables
-    first = other.first;
-    last = other.first;
-    list_size = other.size;
-
-    Node * temp = first.next;
-    push_back(temp->datum);
-    //now we copy over dynamic member variables
-    for (int i = 2; i < other.size() - 1; i++){
-      temp = temp.next;
-      push_back(temp->datum);
-      //temp points to last node in list
-
-    }
-    //temp points to null 
-    temp = nullptr;
-    delete temp;
-  }
-
 
   //EFFECTS:  returns true if the list is empty
   bool empty() const;
@@ -98,42 +64,40 @@ public:
   //EFFECTS:  removes the item at the back of the list
   void pop_back();
 
-  //MODIFIES: may invalidate list iterators
-  //EFFECTS:  removes all items from the list
-  void clear();
-
   // You should add in a default constructor, destructor, copy constructor,
   // and overloaded assignment operator, if appropriate. If these operations
   // will work correctly without defining these, you can omit them. A user
   // of the class must be able to create, copy, assign, and destroy Lists
 
 private:
-  //a private type
+  Node *first;   // points to first Node in list, or nullptr if list is empty
+  Node *last;    // points to last Node in list, or nullptr if list is empty
+  int list_size; //size of list
+
   struct Node {
     Node *next;
     Node *prev;
     T datum;
   };
-      
-      
 
+  //MODIFIES: may invalidate list iterators
+  //EFFECTS:  removes all items from the list
+  void clear();
 
+  //REQUIRES: list is empty
+  //EFFECTS:  copies all nodes from other to this
+  void copy_all(const List<T> &other);
+  
   void Node_init(Node * node, Node * next_in, Node *prev_in, T datum_in){
     node->next = next_in;
     node->prev = prev_in;
     node->datum = datum_in;
   }
 
-  //REQUIRES: list is empty
-  //EFFECTS:  copies all nodes from other to this
-  void copy_all(const List<T> &other);
-
-  Node *first;   // points to first Node in list, or nullptr if list is empty
-  Node *last;    // points to last Node in list, or nullptr if list is empty
-  int list_size; //size of list
 public:
   ////////////////////////////////////////
   class Iterator {
+
     //OVERVIEW: Iterator interface to List
 
     // You should add in a default constructor, destructor, copy constructor,
@@ -153,14 +117,42 @@ public:
       return *this;
     }
 
+    // default ctor
+    Iterator() : node_ptr(nullptr) {}
+
+    // dereference overloader
+    int& operator*() const {
+      assert(node_ptr);
+      return node_ptr->datum;
+    }
+
+    // preincrement overloader
+    Iterator& operator++() {
+      assert(node_ptr);
+      node_ptr = node_ptr->next;
+      return *this;
+    }
+
+  // != overloader
+    bool operator!=(Iterator rhs) {
+      return node_ptr != rhs.node_ptr;
+    }
+
+  // == overloader
+    bool operator==(Iterator rhs) {
+      return node_ptr == rhs.node_ptr;
+    }
+
   private:
     Node *node_ptr; //current Iterator position is a List node
     // add any additional necessary member variables here
 
     // add any friend declarations here
+    // List can touch Iterator's private parts
+    friend class List;
 
     // construct an Iterator at a specific position
-    Iterator(Node *p);
+    Iterator(Node *p) : node_ptr(p) {}
 
   };//List::Iterator
   ////////////////////////////////////////
@@ -171,7 +163,9 @@ public:
   }
 
   // return an Iterator pointing to "past the end"
-  Iterator end() const;
+  Iterator end() const {
+    return Iterator();
+  }
 
   //REQUIRES: i is a valid, dereferenceable iterator associated with this list
   //MODIFIES: may invalidate other list iterators
@@ -191,6 +185,54 @@ public:
 // may add the Big Three if needed.  Do add the public member functions for
 // Iterator.
 
+// Default constructor
+template<typename T>
+List<T>::List() {
+  list_size = 0;
+  first = nullptr;
+  last = nullptr;
+}
+
+// Copy constructor
+template<typename T>
+List<T>::List(const List &other) : list_size(other.size()), first(other.first), last(other.first){
+  copy_all(other);
+};
+
+// Assignment operator overloader
+template<typename T>
+List<T> & List<T>::operator=(const List &rhs) {
+  if (this == &rhs) return *this;
+
+  //pop off all nodes (deletes them)
+  clear();
+  copy_all(rhs);
+
+  return *this;
+}
+
+// // Destructor
+// template<typename T>
+// List<T>::~List {
+//   clear();
+// }
+
+template<typename T>
+void List<T>::copy_all(const List<T> &other){
+    assert(empty());
+  Node *last = nullptr;
+  for (Node *p = other.first; p != nullptr; p = p-> next) {
+    push_back(p->datum);
+  }
+}
+
+template<typename T>
+void List<T>::clear(){
+  while (!empty()){
+    pop_front();
+  }
+  list_size = 0;
+}
 
 template<typename T>
 bool List<T>::empty() const {
@@ -200,40 +242,49 @@ bool List<T>::empty() const {
   return false;
 }
 
-
 //EFFECTS: returns the number of elements in this List
 //HINT:    Traversing a list is really slow.  Instead, keep track of the size
 //         with a private member variable.  That's how std::list does it.
 
 template<typename T>
 T & List<T>::front(){   
-  assert(empty() == false);
+  assert(!empty());
   return first->datum;
 }
 
 template<typename T>
 T & List<T>::back(){
-  assert(empty() == false);
+  assert(!empty());
   return last->datum;
 };
 
 template<typename T>
 void List<T>::push_front(const T &datum){
   //dynamically create a new node
-  Node *newNode = new Node;
+  Node *p = new Node;
   //initialize the new node, its next node is the first node in the linked list
-  newNode->datum = datum;
-  newNode->prev = nullptr;
-  newNode->next = first;
+  p->datum = datum;
+  p->prev = nullptr;
+  p->next = first;
   //the first node in the linked list now has this new node as its previous node
-  first->prev = newNode;
+  first->prev = p;
   //so now the first in the linked list is the new node we created 
-  first = newNode;
+  first = p;
   list_size += 1;
 }
 
 template<typename T>
 void List<T>::push_back(const T &datum){
+  /*    Node *q = new Node;
+    q->datum = p->datum;
+    q->next = nullptr;
+    if (last == nullptr) first = last = q;
+    else {
+      last->next = q;
+      last = q;
+    }
+  */
+ 
   Node *newNode = new Node;
   newNode->datum = datum;
   newNode->next = nullptr;
@@ -257,6 +308,7 @@ void List<T>::pop_front(){
   first = first->next;
   first->prev = nullptr;
   delete temp;
+  temp = nullptr;
   list_size -= 1; 
 }
 
@@ -270,16 +322,25 @@ void List<T>::pop_back(){
   list_size -= 1;
 }
 
-template<typename T>
-void List<T>::clear(){
-  while (!empty()){
-    pop_front();
-  }
-}
 
 template<typename T>
 int List<T>::size() const{
   return list_size;
- }
+}
+
+  //REQUIRES: i is a valid, dereferenceable iterator associated with this list
+  //MODIFIES: may invalidate other list iterators
+  //EFFECTS: Removes a single element from the list container
+  template<typename T>
+  void List<T>::erase(Iterator i) {
+    return;
+  }
+
+  //REQUIRES: i is a valid iterator associated with this list
+  //EFFECTS: inserts datum before the element at the specified position.
+  template<typename T>
+  void List<T>::insert(Iterator i, const T &datum) {
+    return;
+  }
 
 #endif // Do not remove this. Write all your code above this line.
