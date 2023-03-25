@@ -23,6 +23,7 @@ public:
   }
 
 
+
 //modifies cout
  void last_queue_position_response (json body, string http){
   string location = body["location"];
@@ -37,7 +38,72 @@ public:
   cout << http << " 201 Created\nContent-Type: application/json; charset=utf-8\nContent-Length: " +
   to_string(response.dump().size()) + "\n\n" + response.dump();
  }
+
+//GET /api/
+ void read_routes (string http){
+    //response is always the same for this route
+    json response =  {
+      {
+        {"queue_head_url", "http://localhost/queue/head/"},
+        {"queue_list_url", "http://localhost/queue/"},
+        {"queue_tail_url", "http://localhost/queue/tail/}"}
+
+    }
+
+ };
+ //could have formatting issues with \n
+    cout << http << " 200 OK "<< endl << "Content-Type: application/json; charset=utf-8\nContent-Length: " +
+               to_string(response.dump().size()) + "\n\n" + response.dump();
+ }
   
+
+  void read_all_queue_positions(string http){
+    //convert queue to JSON object in correct format
+    //JSON object will have format: count - array len
+    //results - an array of students in the queue in JSON format
+    //convert to string with dump
+    //get length using .length
+    //cout all the shit above
+    json output;
+    json response = {
+      {"count", size()}
+    };
+    json temp;
+    for (auto it:queue){
+      temp["location"] = it.location;
+      temp["position"] = it.position;
+      temp["uniqname"] = it.uniqname;  
+      output.push_back(temp);
+    }
+    response["result"] = output;
+    string body = response.dump();
+    cout << http << " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+    << body.length() << endl << endl << body;
+  }
+
+  void read_first_queue_position(string http){
+    json output;
+    output["location"] = queue.begin()->location;
+    output["position"] = queue.begin()->position;
+    output["uniqname"] = queue.begin()->uniqname;
+    //is this correct usage of dump 
+    string body = output.dump();
+    cout << http << " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+    << body.length() << endl << endl << body;
+  }
+
+  //delete endpoint
+  //modifies: queue, cout
+  void delete_request(string http){
+    queue.pop_front();
+    //decrement positions by 1
+    for (auto it:queue){
+      it.position -= 1;
+    }
+    cout << http << " 204 No Content" << endl << 
+            "Content-Type: application/json; charset=utf-8" << endl <<
+            "Content-Length: 0";
+  }
 
 
 private:
@@ -76,48 +142,31 @@ int main() {
     //FIND ANSWER
     cin >> body;
 
-//potential hardcoding for HTTP/1.1
-if (request == "GET /api/"){
-  queue.last_queue_position_response(body, http);
-}
-else if (request == "GET /api/queue/"){
-
-}
-else if (request == "GET /api/queue/head/"){
-
-}
-else if (request == "POST /api/queue/tail/"){
-
-}
-else if (request == "DELETE /api/queue/head/ HTTP/1.1"){
-
-}
-else{
-  //return response 400
-}
-}
-
-            }
-string process_request(const string& method, const string& endpoint, const json& body, OHQueue& queue) {
-    if (method == "POST" && endpoint == "/api/queue/tail/") {
-        queue.push_student(body);
-
-        json response = {
-            {"location", location},
-            {"position", queue.size()},
-            {"uniqname", uniqname},
-        };
-
-        return "HTTP/1.1 201 Created\nContent-Type: application/json; charset=utf-8\nContent-Length: " +
-               to_string(response.dump().size()) + "\n\n" + response.dump();
-    } else if (method == "GET" && (endpoint == "/api/queue/" || endpoint == "/api/")) {
-        json response = queue.to_json();
-        return "HTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: " +
-               to_string(response.dump().size()) + "\n\n" + response.dump();
-    } else {
-        // Implement other cases, if needed
-        return "";
+    //potential hardcoding for HTTP/1.1
+    if (request == "GET /api/"){
+      queue.read_routes(http);
     }
+    else if (request == "GET /api/queue/"){
+      queue.read_all_queue_positions(http);
+    }
+    else if (request == "GET /api/queue/head/"){
+      queue.read_first_queue_position(http);
+    }
+    else if (request == "POST /api/queue/tail/"){
+      queue.last_queue_position_response(body, http);
+    }
+
+    else if (request == "DELETE /api/queue/head/"){
+      queue.delete_request(http);
+    }
+    else{
+      cout << "HTTP/1.1 400 Bad Request" << endl <<
+      "Content-Type: application/json; charset=utf-8" << endl <<
+      "Content-Length: 0";
+    }
+  }
+
+            
+
+
 }
-
-
