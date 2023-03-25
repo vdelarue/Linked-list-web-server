@@ -191,6 +191,7 @@ List<T>::List() {
   list_size = 0;
   first = nullptr;
   last = nullptr;
+  Node_init(first, nullptr, nullptr, )
 }
 
 // Copy constructor
