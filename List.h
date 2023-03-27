@@ -122,7 +122,7 @@ public:
     Iterator() : node_ptr(nullptr) {}
 
     // dereference overloader
-    int& operator*() const {
+    T& operator*() const {
       assert(node_ptr);
       return node_ptr->datum;
     }
@@ -135,12 +135,12 @@ public:
     }
 
   // != overloader
-    bool operator!=(Iterator rhs) {
+    bool operator!=(Iterator rhs) const{
       return node_ptr != rhs.node_ptr;
     }
 
   // == overloader
-    bool operator==(Iterator rhs) {
+    bool operator==(Iterator rhs) const{
       return node_ptr == rhs.node_ptr;
     }
 
@@ -197,9 +197,9 @@ List<T>::List() {
 // Copy constructor
 template<typename T>
 List<T>::List(const List &other) :
- list_size(other.size()), first(other.first), last(other.first){
+ List(){
   copy_all(other);
-};
+ }
 
 // Assignment operator overloader
 template<typename T>
@@ -222,7 +222,6 @@ List<T> & List<T>::operator=(const List &rhs) {
 template<typename T>
 void List<T>::copy_all(const List<T> &other){
     assert(empty());
-  Node *last = nullptr;
   for (Node *p = other.first; p != nullptr; p = p-> next) {
     push_back(p->datum);
   }

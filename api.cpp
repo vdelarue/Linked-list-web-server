@@ -37,7 +37,7 @@ public:
 
   cout << http <<
   " 201 Created\nContent-Type: application/json; charset=utf-8\nContent-Length: "
-   + to_string(response.dump().size()) + "\n\n" + response.dump();
+   + to_string(response.dump(4).size()) + "\n\n" + response.dump(4);
  }
 
 //GET /api/
@@ -55,7 +55,7 @@ public:
  //could have formatting issues with \n
     cout << http << " 200 OK "<< endl << 
     "Content-Type: application/json; charset=utf-8\nContent-Length: "
-    + to_string(response.dump().size()) + "\n\n" + response.dump();
+    + to_string(response.dump(4).size()) + "\n\n" + response.dump(4);
  }
   
 
@@ -78,7 +78,7 @@ public:
       output.push_back(temp);
     }
     response["result"] = output;
-    string body = response.dump();
+    string body = response.dump(4);
     cout << http <<
     " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
     << body.length() << endl << endl << body;
@@ -90,7 +90,7 @@ public:
     output["position"] = queue.begin()->position;
     output["uniqname"] = queue.begin()->uniqname;
     //is this correct usage of dump 
-    string body = output.dump();
+    string body = output.dump(4);
     cout << http <<
     " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
     << body.length() << endl << endl << body;

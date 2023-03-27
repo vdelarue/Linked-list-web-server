@@ -105,6 +105,73 @@ TEST(pop_back){
     ASSERT_EQUAL(biden.back(), 69);
 }
 
+TEST(assignment_constructor_list){
+    List<int> list1;
+    list1.push_front(12);
+    list1.push_back(8);
 
+    List<int> isa;
+    isa.push_back(69);
+    isa.push_back(-23);
+    isa.push_back(0);
+    isa  = list1;
+    List<int>::Iterator it1 = list1.begin();
+    List<int>::Iterator itsa = isa.begin();
+    for (int i = 0; i < 2; i++){
+        ASSERT_EQUAL(*it1, *itsa);
+        ++it1;
+        ++itsa;
+    }
+}
+
+TEST(copy_constructor_list){
+    List<int> list1;
+    list1.push_back(-38);
+    list1.push_back(-38);
+    list1.push_back(-7);
+    list1.push_back(23);
+     
+    List<int> list2 = list1;
+    List<int>::Iterator it1 = list1.begin();
+    List<int>::Iterator it2 = list2.begin();
+    for (int i = 0; i < list1.size(); i++){
+        ASSERT_EQUAL(*it1, *it2);
+        ++it1;
+        ++it2;
+    }
+}
+
+TEST(string_list){
+    List<string> list1;
+    ASSERT_TRUE(list1.empty());
+    list1.push_back("Joshua");
+    list1.push_front("Isa");
+    list1.pop_front();
+    list1.pop_back();
+    list1.push_back("Olivia");
+    list1.push_back("Juliette");
+    list1.push_back("Carine");
+    ASSERT_EQUAL(list1.size(), 3);
+
+    List<string> list2 = list1;
+    List<string>::Iterator it1 = list1.begin();
+    List<string>::Iterator it2 = list2.begin();
+    for (int i = 0; i < list1.size(); i++){
+        ASSERT_EQUAL(*it1, *it2);
+        ++it1;
+        ++it2;
+    }
+
+    List<string> list3;
+    list3.push_back("Carmen");
+    list3 = list1;
+    List<string>::Iterator it3 = list3.begin();
+    it1 = list1.begin();
+    for (int i = 0; i < list1.size(); i++){
+        ASSERT_EQUAL(*it1, *it3);
+        ++it1;
+        ++it3;
+    }
+}
 
 TEST_MAIN();
