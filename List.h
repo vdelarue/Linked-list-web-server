@@ -70,15 +70,16 @@ public:
   // of the class must be able to create, copy, assign, and destroy Lists
 
 private:
+  struct Node {
+      Node *next;
+      Node *prev;
+      T datum;
+    };
   Node *first;   // points to first Node in list, or nullptr if list is empty
   Node *last;    // points to last Node in list, or nullptr if list is empty
   int list_size; //size of list
 
-  struct Node {
-    Node *next;
-    Node *prev;
-    T datum;
-  };
+  
 
   //MODIFIES: may invalidate list iterators
   //EFFECTS:  removes all items from the list
@@ -191,12 +192,12 @@ List<T>::List() {
   list_size = 0;
   first = nullptr;
   last = nullptr;
-  Node_init(first, nullptr, nullptr, )
 }
 
 // Copy constructor
 template<typename T>
-List<T>::List(const List &other) : list_size(other.size()), first(other.first), last(other.first){
+List<T>::List(const List &other) :
+ list_size(other.size()), first(other.first), last(other.first){
   copy_all(other);
 };
 
@@ -229,6 +230,9 @@ void List<T>::copy_all(const List<T> &other){
 
 template<typename T>
 void List<T>::clear(){
+  if (empty()){
+    return;
+  }
   while (!empty()){
     pop_front();
   }
@@ -265,12 +269,20 @@ void List<T>::push_front(const T &datum){
   Node *p = new Node;
   //initialize the new node, its next node is the first node in the linked list
   p->datum = datum;
-  p->prev = nullptr;
-  p->next = first;
-  //the first node in the linked list now has this new node as its previous node
-  first->prev = p;
-  //so now the first in the linked list is the new node we created 
-  first = p;
+  if (empty()){
+    first = last = p;
+    p->prev = nullptr;
+    p->next = nullptr;
+  }
+  else{
+    p->prev = nullptr;
+    p->next = first;
+    //the first node in the linked list now has this new node as its previous node
+    first->prev = p;
+    //so now the first in the linked list is the new node we created 
+    first = p;
+  }
+ 
   list_size += 1;
 }
 
@@ -305,21 +317,43 @@ template<typename T>
 void List<T>::pop_front(){
   assert(empty() == false);
   //temp points to second node in list
-  Node * temp = first;
-  first = first->next;
-  first->prev = nullptr;
-  delete temp;
-  temp = nullptr;
-  list_size -= 1; 
+  // Node * temp = first;
+  // first = first->next;
+  // first->prev = nullptr;
+  // delete temp;
+  // temp = nullptr;
+  // list_size -= 1; 
+  if (size() == 1){
+    delete first;
+    first = last = nullptr;
+  }
+  else{
+    Node *victim = first;
+    first = first->next;
+    delete victim;
+    first->prev = nullptr;
+  }
+  list_size -= 1;
 }
 
 template<typename T>
 void List<T>::pop_back(){
   assert(empty() == false);
-  Node * temp = last;
-  (last->prev)->next = nullptr;
-  last = last->prev;
-  delete temp;
+  // Node * temp = last;
+  // (last->prev)->next = nullptr;
+  // last = last->prev;
+  // delete temp;
+  // list_size -= 1;
+  if (size() == 1){
+    delete last;
+    first = last = nullptr;
+  }
+  else{
+    Node *victim = last;
+    last = last->prev;
+    delete victim;
+    last->next = nullptr;
+  }
   list_size -= 1;
 }
 

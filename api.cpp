@@ -35,8 +35,9 @@ public:
     {"uniqname", uniqname}
   };
 
-  cout << http << " 201 Created\nContent-Type: application/json; charset=utf-8\nContent-Length: " +
-  to_string(response.dump().size()) + "\n\n" + response.dump();
+  cout << http <<
+  " 201 Created\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+   + to_string(response.dump().size()) + "\n\n" + response.dump();
  }
 
 //GET /api/
@@ -52,8 +53,9 @@ public:
 
  };
  //could have formatting issues with \n
-    cout << http << " 200 OK "<< endl << "Content-Type: application/json; charset=utf-8\nContent-Length: " +
-               to_string(response.dump().size()) + "\n\n" + response.dump();
+    cout << http << " 200 OK "<< endl << 
+    "Content-Type: application/json; charset=utf-8\nContent-Length: "
+    + to_string(response.dump().size()) + "\n\n" + response.dump();
  }
   
 
@@ -77,7 +79,8 @@ public:
     }
     response["result"] = output;
     string body = response.dump();
-    cout << http << " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+    cout << http <<
+    " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
     << body.length() << endl << endl << body;
   }
 
@@ -88,7 +91,8 @@ public:
     output["uniqname"] = queue.begin()->uniqname;
     //is this correct usage of dump 
     string body = output.dump();
-    cout << http << " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+    cout << http <<
+    " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
     << body.length() << endl << endl << body;
   }
 

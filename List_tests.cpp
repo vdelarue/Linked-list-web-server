@@ -54,19 +54,21 @@ TEST(push_back){
     ASSERT_EQUAL(isa.size(), 6);
 }
 
-TEST(clear){
-    List<int> vivi;
 
-    ASSERT_TRUE(vivi.empty());
-    vivi.clear();
-    ASSERT_TRUE(vivi.empty());
+// clear is a private function
+// TEST(clear){
+//     List<int> vivi;
 
-    vivi.push_front(69);
-    vivi.push_back(420);    
-    vivi.push_front(420);
-    vivi.clear();
-    ASSERT_TRUE(vivi.empty());
-}
+//     ASSERT_TRUE(vivi.empty());
+//     vivi.clear();
+//     ASSERT_TRUE(vivi.empty());
+
+//     vivi.push_front(69);
+//     vivi.push_back(420);    
+//     vivi.push_front(420);
+//     vivi.clear();
+//     ASSERT_TRUE(vivi.empty());
+// }
 
 TEST(pop_front){
     List<int> joshua;
