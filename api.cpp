@@ -25,7 +25,7 @@ public:
 
 
 //modifies cout
- void last_queue_position_response (json body, string http){
+ void last_queue_position_response (json body){
   string location = body["location"];
   string uniqname = body["uniqname"];
   push_student(body);
@@ -34,32 +34,31 @@ public:
     {"position", size()},
     {"uniqname", uniqname}
   };
-
-  cout << http <<
-  " 201 Created\nContent-Type: application/json; charset=utf-8\nContent-Length: "
-   + to_string(response.dump(4).size()) + "\n\n" + response.dump(4);
+  string response_string = response.dump(4) + "\n";
+  string content_length = to_string(response_string.length());
+  cout << "HTTP/1.1 201 Created\n"
+  << "Content-Type: application/json; charset=utf-8\nContent-Length: "
+   << content_length << "\n\n" << response_string;
  }
 
 //GET /api/
- void read_routes (string http){
+ void read_routes (){
     //response is always the same for this route
     json response =  {
-      {
         {"queue_head_url", "http://localhost/queue/head/"},
         {"queue_list_url", "http://localhost/queue/"},
-        {"queue_tail_url", "http://localhost/queue/tail/}"}
-
-    }
-
+        {"queue_tail_url", "http://localhost/queue/tail/"}
  };
+  string response_string = response.dump(4) + "\n";
+  string content_length = to_string(response_string.length());
  //could have formatting issues with \n
-    cout << http << " 200 OK "<< endl << 
-    "Content-Type: application/json; charset=utf-8\nContent-Length: "
-    + to_string(response.dump(4).size()) + "\n\n" + response.dump(4);
+    cout << "HTTP/1.1 200 OK\n" << 
+    "Content-Type: application/json; charset=utf-8\nContent-Length: " 
+    << content_length << "\n\n" << response_string;
  }
   
 
-  void read_all_queue_positions(string http){
+  void read_all_queue_positions(){
     //convert queue to JSON object in correct format
     //JSON object will have format: count - array len
     //results - an array of students in the queue in JSON format
@@ -77,36 +76,36 @@ public:
       temp["uniqname"] = it.uniqname;  
       output.push_back(temp);
     }
-    response["result"] = output;
-    string body = response.dump(4);
-    cout << http <<
-    " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+    response["results"] = output;
+    string body = response.dump(4) + "\n";
+    cout << 
+    "HTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
     << body.length() << endl << endl << body;
   }
 
-  void read_first_queue_position(string http){
+  void read_first_queue_position(){
     json output;
     output["location"] = queue.begin()->location;
     output["position"] = queue.begin()->position;
     output["uniqname"] = queue.begin()->uniqname;
     //is this correct usage of dump 
-    string body = output.dump(4);
-    cout << http <<
-    " 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
+    string body = output.dump(4) + "\n";
+    cout << 
+    "HTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: "
     << body.length() << endl << endl << body;
   }
 
   //delete endpoint
   //modifies: queue, cout
-  void delete_request(string http){
+  void delete_request(){
     queue.pop_front();
     //decrement positions by 1
     for (auto it:queue){
       it.position -= 1;
     }
-    cout << http << " 204 No Content" << endl << 
+    cout << "HTTP/1.1 204 No Content" << endl << 
             "Content-Type: application/json; charset=utf-8" << endl <<
-            "Content-Length: 0";
+            "Content-Length: 0" << "\n\n";
   }
 
 
@@ -134,34 +133,34 @@ int main() {
   string temp;
   string length;
   json body;
-  string http;
-
   while (cin >> request >> temp) {
     request = request + " " + temp;
-    cin >> http;
+    getline(cin, temp); // this would be HTTP/1.1
     getline(cin, temp); // this would be "Host: localhost"
     getline(cin, temp); // this would be "Content-Type: application/json; charset=utf-8"
-    getline(cin, length); 
-    //potential ERROR WHEN CONTENT LENNGTH 0
-    //FIND ANSWER
-    cin >> body;
+    getline(cin, length);
 
-    //potential hardcoding for HTTP/1.1
+    if (length != "Content-Length: 0"){
+      cin >> body;
+    }
+
+      
+
     if (request == "GET /api/"){
-      queue.read_routes(http);
+      queue.read_routes();
     }
     else if (request == "GET /api/queue/"){
-      queue.read_all_queue_positions(http);
+      queue.read_all_queue_positions();
     }
     else if (request == "GET /api/queue/head/"){
-      queue.read_first_queue_position(http);
+      queue.read_first_queue_position();
     }
     else if (request == "POST /api/queue/tail/"){
-      queue.last_queue_position_response(body, http);
+      queue.last_queue_position_response(body);
     }
 
     else if (request == "DELETE /api/queue/head/"){
-      queue.delete_request(http);
+      queue.delete_request();
     }
     else{
       cout << "HTTP/1.1 400 Bad Request" << endl <<
@@ -170,7 +169,7 @@ int main() {
     }
   }
 
-            
+  cout << endl;
 
 
 }

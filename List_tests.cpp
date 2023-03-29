@@ -174,4 +174,98 @@ TEST(string_list){
     }
 }
 
+TEST(clear){
+    List<char> list1;
+    list1.push_back('c');
+    list1.push_back('u');
+    list1.push_back('n');
+    list1.push_back('m');
+    ASSERT_EQUAL(list1.size(), 4);
+    ASSERT_FALSE(list1.empty());
+    list1.clear();
+    ASSERT_EQUAL(list1.size(), 0);
+    ASSERT_TRUE(list1.empty());
+    
+
+}
+
+TEST(front_and_back){
+    List<int> list1;
+    list1.push_back(3);
+    ASSERT_EQUAL(list1.front(), 3);
+    ASSERT_EQUAL(list1.back(), 3);
+    list1.clear();
+    list1.push_front(7);
+    ASSERT_EQUAL(list1.front(), 7);
+    ASSERT_EQUAL(list1.back(), 7);
+}
+
+TEST(begin){
+    List<int> list1;
+    list1.push_back(5);
+    List<int>::Iterator it1 = list1.begin();
+    List<int>::Iterator it2 = list1.end();
+    ASSERT_EQUAL(*it1, 5);
+    ASSERT_NOT_EQUAL(it1, it2);
+}
+
+TEST(end){
+    List<int> list1;
+    list1.push_back(5);
+    list1.push_back(7);
+    list1.push_back(69);
+    List<int>::Iterator it1 = list1.begin();
+    List<int>::Iterator it2 = list1.end();
+    ++it1;
+    ++it1;
+    ++it1;
+    ASSERT_EQUAL(it1, it2);
+}
+
+
+TEST(erase){
+    List<int> list1;
+    list1.push_back(69);
+    list1.push_back(69);
+    list1.push_back(69);
+    List<int>::Iterator it1 = list1.begin();
+    ++it1;
+    list1.erase(it1);
+    ASSERT_EQUAL(list1.size(), 2);
+
+}
+
+TEST(insert){
+    List<int> list1;
+    list1.push_back(69);
+    list1.push_back(420);
+    list1.push_back(666);
+    List<int>::Iterator it1 = list1.begin();
+    ++it1;
+    list1.insert(it1, 128);
+    it1 = list1.begin();
+    ASSERT_EQUAL(*it1, 69);
+    ++it1;
+    ASSERT_EQUAL(*it1, 128);
+    ++it1;
+    ASSERT_EQUAL(*it1, 420);
+    ++it1;
+    ASSERT_EQUAL(*it1, 666);
+
+}
+
+TEST(iterator_constructors){
+    List<int> list1;
+    list1.push_back(69);
+    list1.push_back(420);
+    list1.push_back(666);
+    List<int>::Iterator it1 = list1.begin();
+    ++it1;
+    List<int>::Iterator it2 = it1;
+    ASSERT_EQUAL(it1, it2);
+    List<int>::Iterator it3 = list1.end();
+    it3 = it1;
+    ASSERT_EQUAL(it1, it3);
+}
+
 TEST_MAIN();

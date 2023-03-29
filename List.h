@@ -64,6 +64,10 @@ public:
   //EFFECTS:  removes the item at the back of the list
   void pop_back();
 
+  //MODIFIES: may invalidate list iterators
+  //EFFECTS:  removes all items from the list
+  void clear();
+
   // You should add in a default constructor, destructor, copy constructor,
   // and overloaded assignment operator, if appropriate. If these operations
   // will work correctly without defining these, you can omit them. A user
@@ -81,9 +85,7 @@ private:
 
   
 
-  //MODIFIES: may invalidate list iterators
-  //EFFECTS:  removes all items from the list
-  void clear();
+  
 
   //REQUIRES: list is empty
   //EFFECTS:  copies all nodes from other to this
@@ -367,14 +369,58 @@ int List<T>::size() const{
   //EFFECTS: Removes a single element from the list container
   template<typename T>
   void List<T>::erase(Iterator i) {
-    return;
-  }
+    //if the iterator is at the start of the list
+    if (i.node_ptr == first) {
+        first = first->next;
+    } 
+    //otherwise, we make the previous node point to the 
+    //current node's next, skipping over the current node
+    else {
+        i.node_ptr->prev->next = i.node_ptr->next;
+    }
+    //if the iterator is at the end of the list
+    if (i.node_ptr == last) {
+        last = last->prev;
+    } 
+    //otherwise we make the next node point to the node
+    //before the current node, skipping over the current node
+    else {
+        i.node_ptr->next->prev = i.node_ptr->prev;
+    }
 
+    delete i.node_ptr;
+    list_size -= 1;
+}
+  
   //REQUIRES: i is a valid iterator associated with this list
   //EFFECTS: inserts datum before the element at the specified position.
   template<typename T>
   void List<T>::insert(Iterator i, const T &datum) {
-    return;
+    //if list is empty then we can just push back 
+    if (i.node_ptr == nullptr) {
+        push_back(datum);
+    } 
+    //if iterator is at start of list we push front
+    else if (i.node_ptr == first) {
+        push_front(datum);
+    } 
+    //otherwise we need to create a new node 
+    //and insert it into the right position
+    //and change the next/prev of affected nodes
+    else {
+        Node *inserted = new Node;
+        Node *position = i.node_ptr;
+
+        inserted->next = position;
+        inserted->prev = position->prev;
+        position->prev->next = inserted;
+        position->prev = inserted;
+
+        inserted->datum = datum;
+
+        list_size += 1;
+
+    }
   }
 
 #endif // Do not remove this. Write all your code above this line.
