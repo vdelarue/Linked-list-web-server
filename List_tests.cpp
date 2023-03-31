@@ -268,4 +268,20 @@ TEST(iterator_constructors){
     ASSERT_EQUAL(it1, it3);
 }
 
+TEST(list_constructors_empty){
+    List<int> list1;
+    list1.push_back(69);
+    list1.push_back(420);
+    list1.push_back(666);
+    List<int> list2;
+    list1 = list2;
+    ASSERT_EQUAL(list1.size(), 0);
+    ASSERT_EQUAL(list2.size(), 0);
+
+    List<int> list3 = list1;
+    ASSERT_EQUAL(list1.size(), 0);
+    ASSERT_EQUAL(list3.size(), 0);
+    
+}
+
 TEST_MAIN();
